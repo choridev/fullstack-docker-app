@@ -2,33 +2,37 @@ version: "3"
 services:
   frontend:
     build:
-      dockerfile: Dockerfile.dev
       context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: app_frontend
     volumes:
-      - /app/node_modules
-      - ./frontend:/app
+      - /workspace/node_modules
+      - ./frontend:/workspace
     stdin_open: true
 
   nginx: 
     restart: always
     build:
-      dockerfile: Dockerfile
       context: ./nginx
-    ports: 
-      - "3000:80"
+      dockerfile: Dockerfile.dev
+    container_name: app_nginx
+    ports:
+      - "80:80"
 
   backend:
-    build: 
-      dockerfile: Dockerfile.dev
+    build:
       context: ./backend
+      dockerfile: Dockerfile.dev
     container_name: app_backend
     volumes:
-      - /app/node_modules
-      - ./backend:/app
+      - /workspace/node_modules
+      - ./backend:/workspace
     
   mysql:
-    build: ./mysql
     restart: unless-stopped
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile.dev
     container_name: app_mysql
     ports:
       - "3306:3306"
@@ -36,5 +40,5 @@ services:
       - ./mysql/mysql_data:/var/lib/mysql
       - ./mysql/sqls/:/docker-entrypoint-initdb.d/
     environment:
-      MYSQL_ROOT_PASSWORD: johnahn
+      MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: myapp
